@@ -3,8 +3,10 @@ import requests
 
 def get_hh_vacancies(text):
     vacancies_url = "https://api.hh.ru/vacancies"
+    area_id = '1'  # id for Moscow city
     params = {
         'text': text,
+        'area': area_id,
     }
     response = requests.get(vacancies_url, params=params)
     response.raise_for_status()
