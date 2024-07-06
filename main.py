@@ -34,7 +34,13 @@ def fetch_hh_programmers(languages, page_limit=1000):
 
     for language in languages:
         vacancies, total_vacancies = get_hh_vacancies(language, page_limit)
+        salaries = []
+        for v in vacancies:
+            salary = v.get('salary')
+            if salary:
+                salaries.append(salary)
         vacancies_hh[language] = total_vacancies
+        vacancies_hh[language] = salaries
         time.sleep(delay_time)
 
     return vacancies_hh
