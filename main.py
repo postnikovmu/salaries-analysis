@@ -2,7 +2,7 @@ import requests
 import time
 
 
-def get_hh_vacancies(text):
+def get_hh_vacancies(text, page_limit):
     vacancies_url = "https://api.hh.ru/vacancies"
     area_id = '1'
     vacancies_per_page = '100'
@@ -21,17 +21,19 @@ def get_hh_vacancies(text):
         all_vacancies.extend(vacancy_descriptions['items'])
         if page >= vacancy_descriptions['pages'] - 1:
             break
+        if page >= page_limit:
+            break
         page += 1
         time.sleep(0.5)
     return all_vacancies, vacancy_descriptions['found']
 
 
-def fetch_hh_programmers(languages):
+def fetch_hh_programmers(languages, page_limit=1000):
     vacancies_hh = {}
     delay_time = 0.5
 
     for language in languages:
-        vacancies, total_vacancies = get_hh_vacancies(language)
+        vacancies, total_vacancies = get_hh_vacancies(language, page_limit)
         vacancies_hh[language] = total_vacancies
         time.sleep(delay_time)
 
@@ -43,7 +45,7 @@ def main():
     languages = [
         'Python', 'Java', 'C++', 'JavaScript', 'C#', 'Swift', 'Kotlin', 'Ruby', 'PHP', 'Go'
     ]
-    print(fetch_hh_programmers(languages))
+    print(fetch_hh_programmers(languages, page_limit=1))
 
 
 if __name__ == '__main__':
