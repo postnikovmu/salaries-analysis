@@ -37,13 +37,31 @@ def fetch_hh_programmers(languages, page_limit=1000):
         salaries = []
         for v in vacancies:
             salary = v.get('salary')
+            predicted_salary = predict_rub_salary(salary)
             if salary:
-                salaries.append(salary)
+                salaries.append(predicted_salary)
         vacancies_hh[language] = total_vacancies
         vacancies_hh[language] = salaries
         time.sleep(delay_time)
 
     return vacancies_hh
+
+
+def predict_rub_salary(salary):
+    if not salary or salary['currency'] != 'RUR':
+        return None
+    predicted_salary = 0
+
+    payment_from = salary.get('from')
+    payment_to = salary.get('to')
+    if payment_from and payment_to:
+        predicted_salary = (payment_from + payment_to) / 2
+    elif payment_from:
+        predicted_salary = payment_from * 1.2
+    elif payment_to:
+        predicted_salary = payment_to * 0.8
+
+    return predicted_salary
 
 
 def main():
