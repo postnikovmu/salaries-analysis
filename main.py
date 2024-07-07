@@ -33,14 +33,22 @@ def fetch_hh_programmers(languages, page_limit=1000):
     delay_time = 0.5
 
     for language in languages:
-        vacancies, total_vacancies = get_hh_vacancies(language, page_limit)
-        salaries = []
+        vacancies, vacancies_found = get_hh_vacancies(language, page_limit)
+        vacancies_processed = 0
+        total_salary = 0
+        average_salary = 0
         for v in vacancies:
             salary = v.get('salary')
             predicted_salary = predict_rub_salary(salary)
-            if salary:
-                salaries.append(predicted_salary)
-        vacancies_hh[language] = total_vacancies
+            if predicted_salary:
+                vacancies_processed += 1
+                total_salary += predicted_salary
+        average_salary = int(total_salary / vacancies_processed)
+        salaries = {'vacancies_found': vacancies_found,
+                    'vacancies_processed': vacancies_processed,
+                    'average_salary': average_salary,
+                    }
+
         vacancies_hh[language] = salaries
         time.sleep(delay_time)
 
@@ -69,7 +77,7 @@ def main():
     languages = [
         'Python', 'Java', 'C++', 'JavaScript', 'C#', 'Swift', 'Kotlin', 'Ruby', 'PHP', 'Go'
     ]
-    print(fetch_hh_programmers(languages, page_limit=1))
+    print(fetch_hh_programmers(languages))
 
 
 if __name__ == '__main__':
