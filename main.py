@@ -39,17 +39,17 @@ def fetch_hh_programmers(languages, page_limit=1000):
         vacancies, vacancies_found = get_hh_vacancies(language, page_limit)
         vacancies_processed = 0
         total_salary = 0
-        for v in vacancies:
-            salary = v.get('salary')
-            predicted_salary = predict_rub_salary(salary)
+        for vacancy in vacancies:
+            predicted_salary = predict_rub_salary(vacancy)
             if predicted_salary:
                 vacancies_processed += 1
                 total_salary += predicted_salary
         average_salary = int(total_salary / vacancies_processed)
-        salaries = {'vacancies_found': vacancies_found,
-                    'vacancies_processed': vacancies_processed,
-                    'average_salary': average_salary,
-                    }
+        salaries = {
+            'vacancies_found': vacancies_found,
+            'vacancies_processed': vacancies_processed,
+            'average_salary': average_salary,
+        }
 
         vacancies_hh[language] = salaries
         time.sleep(delay_time)
@@ -57,7 +57,7 @@ def fetch_hh_programmers(languages, page_limit=1000):
     return vacancies_hh
 
 
-def get_superjob_vacancies(language, api_key):
+def get_superjob_vacancies(language, api_key, page_limit=1000):
     vacancies_url = "https://api.superjob.ru/2.0/vacancies/"
     start_page_number = 0
     vacancies_per_page = 100
@@ -82,26 +82,30 @@ def get_superjob_vacancies(language, api_key):
         all_vacancies.extend(vacancy_descriptions['objects'])
         if len(all_vacancies) >= vacancy_descriptions['total']:
             break
+        if page >= page_limit:
+            break
         page += 1
         time.sleep(0.5)
     return all_vacancies, vacancy_descriptions['total']
 
 
-def fetch_sj_programmers(api_key, languages):
+def fetch_sj_programmers(api_key, languages, page_limit=1000):
     vacancies_superjob_salaries = {}
     delay_time = 0.5
 
     for language in languages:
-        vacancies, total_vacancies = get_superjob_vacancies(language, api_key)
-        salaries = []
+        vacancies, vacancies_found = get_superjob_vacancies(language, api_key, page_limit)
+        vacancies_processed = 0
+        total_salary = 0
         for vacancy in vacancies:
-            predicted_salary = predict_rub_salary(vacancy['payment_from'], vacancy['payment_to'])
+            predicted_salary = predict_rub_salary_for_superJob(vacancy)
             if predicted_salary:
-                salaries.append(predicted_salary)
-        average_salary = int(sum(salaries) / len(salaries)) if salaries else 0
+                vacancies_processed += 1
+                total_salary += predicted_salary
+        average_salary = int(total_salary / vacancies_processed)
         vacancies_superjob_salaries[language] = {
-            'vacancies_found': total_vacancies,
-            'vacancies_processed': len(salaries),
+            'vacancies_found': vacancies_found,
+            'vacancies_processed': vacancies_processed,
             'average_salary': average_salary,
         }
         time.sleep(delay_time)
@@ -109,13 +113,29 @@ def fetch_sj_programmers(api_key, languages):
     return vacancies_superjob_salaries
 
 
-def predict_rub_salary(salary):
+def predict_rub_salary(vacancy):
+    salary = vacancy.get('salary')
     if not salary or salary['currency'] != 'RUR':
         return None
     predicted_salary = 0
 
     payment_from = salary.get('from')
     payment_to = salary.get('to')
+    if payment_from and payment_to:
+        predicted_salary = (payment_from + payment_to) / 2
+    elif payment_from:
+        predicted_salary = payment_from * 1.2
+    elif payment_to:
+        predicted_salary = payment_to * 0.8
+
+    return predicted_salary
+
+
+def predict_rub_salary_for_superJob(vacancy):
+    predicted_salary = 0
+
+    payment_from = vacancy.get('payment_from')
+    payment_to = vacancy.get('payment_to')
     if payment_from and payment_to:
         predicted_salary = (payment_from + payment_to) / 2
     elif payment_from:
