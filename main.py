@@ -45,7 +45,8 @@ def fetch_hh_statistics(languages, page_limit=1000):
                 vacancies_processed += 1
                 total_salary += predicted_salary
 
-        average_salary = int(total_salary / vacancies_processed) if vacancies_processed else 0
+        average_salary = int(total_salary / vacancies_processed) \
+            if vacancies_processed else 0
         salaries = {
             'vacancies_found': vacancies_found,
             'vacancies_processed': vacancies_processed,
@@ -95,7 +96,9 @@ def fetch_sj_statistics(api_key, languages, page_limit=1000):
     delay_time = 0.5
 
     for language in languages:
-        vacancies, vacancies_found = get_superjob_vacancies(language, api_key, page_limit)
+        vacancies, vacancies_found = get_superjob_vacancies(
+            language, api_key, page_limit
+        )
         vacancies_processed = 0
         total_salary = 0
         for vacancy in vacancies:
@@ -103,7 +106,8 @@ def fetch_sj_statistics(api_key, languages, page_limit=1000):
             if predicted_salary:
                 vacancies_processed += 1
                 total_salary += predicted_salary
-        average_salary = int(total_salary / vacancies_processed) if vacancies_processed else 0
+        average_salary = int(total_salary / vacancies_processed)\
+            if vacancies_processed else 0
         vacancies_superjob_salaries[language] = {
             'vacancies_found': vacancies_found,
             'vacancies_processed': vacancies_processed,
@@ -118,11 +122,15 @@ def predict_rub_salary(vacancy):
     salary = vacancy.get('salary')
     if not salary or salary['currency'] != 'RUR':
         return None
-    return calculate_prediction(salary.get('from'), salary.get('to'))
+    return calculate_prediction(
+        salary.get('from'), salary.get('to')
+    )
 
 
 def predict_rub_salary_for_superJob(vacancy):
-    return calculate_prediction(vacancy.get('payment_from'), vacancy.get('payment_to'))
+    return calculate_prediction(
+        vacancy.get('payment_from'), vacancy.get('payment_to')
+    )
 
 
 def calculate_prediction(payment_from, payment_to):
@@ -137,10 +145,19 @@ def calculate_prediction(payment_from, payment_to):
 
 
 def print_table(vacancy_descriptions, title):
-    table_columns = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
+    table_columns = [[
+        'Язык программирования',
+        'Вакансий найдено',
+        'Вакансий обработано',
+        'Средняя зарплата',
+    ]]
     for language, stats in vacancy_descriptions.items():
-        table_columns.append(
-            [language, stats['vacancies_found'], stats['vacancies_processed'], stats['average_salary']])
+        table_columns.append([
+            language,
+            stats['vacancies_found'],
+            stats['vacancies_processed'],
+            stats['average_salary']
+        ])
     table = AsciiTable(table_columns, title)
     print(table.table)
 
@@ -151,7 +168,16 @@ def main():
     api_key = os.getenv('SUPER_JOB_KEY')
 
     languages = [
-        'Python', 'Go', 'JavaScript', 'C++', 'Java', 'C#', 'Kotlin', 'Swift', 'Ruby', 'PHP',
+        'Python',
+        'Go',
+        'JavaScript',
+        'C++',
+        'Java',
+        'C#',
+        'Kotlin',
+        'Swift',
+        'Ruby',
+        'PHP',
     ]
 
     hh_programmers_salaries = fetch_hh_statistics(languages)
