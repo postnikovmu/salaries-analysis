@@ -31,7 +31,7 @@ def get_hh_vacancies(text, page_limit):
     return all_vacancies, vacancy_descriptions['found']
 
 
-def fetch_hh_programmers(languages, page_limit=1000):
+def fetch_hh_statistics(languages, page_limit=1000):
     vacancies_hh = {}
     delay_time = 0.5
 
@@ -89,7 +89,7 @@ def get_superjob_vacancies(language, api_key, page_limit=1000):
     return all_vacancies, vacancy_descriptions['total']
 
 
-def fetch_sj_programmers(api_key, languages, page_limit=1000):
+def fetch_sj_statistics(api_key, languages, page_limit=1000):
     vacancies_superjob_salaries = {}
     delay_time = 0.5
 
@@ -164,10 +164,10 @@ def main():
         'Python', 'Go', 'JavaScript', 'C++', 'Java', 'C#', 'Kotlin', 'Swift', 'Ruby', 'PHP',
     ]
 
-    hh_programmers_salaries = fetch_hh_programmers(languages)
+    hh_programmers_salaries = fetch_hh_statistics(languages)
     print_table(hh_programmers_salaries, "HeadHunter Moscow")
 
-    sj_programmers_salaries = fetch_sj_programmers(api_key, languages)
+    sj_programmers_salaries = fetch_sj_statistics(api_key, languages)
     print_table(sj_programmers_salaries, "SuperJob Moscow")
 
 
