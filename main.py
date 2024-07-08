@@ -117,33 +117,22 @@ def predict_rub_salary(vacancy):
     salary = vacancy.get('salary')
     if not salary or salary['currency'] != 'RUR':
         return None
-    predicted_salary = 0
-
-    payment_from = salary.get('from')
-    payment_to = salary.get('to')
-    if payment_from and payment_to:
-        predicted_salary = (payment_from + payment_to) / 2
-    elif payment_from:
-        predicted_salary = payment_from * 1.2
-    elif payment_to:
-        predicted_salary = payment_to * 0.8
-
-    return predicted_salary
+    return calculate_prediction(salary.get('from'), salary.get('to'))
 
 
 def predict_rub_salary_for_superJob(vacancy):
-    predicted_salary = 0
+    return calculate_prediction(vacancy.get('payment_from'), vacancy.get('payment_to'))
 
-    payment_from = vacancy.get('payment_from')
-    payment_to = vacancy.get('payment_to')
+
+def calculate_prediction(payment_from, payment_to):
     if payment_from and payment_to:
-        predicted_salary = (payment_from + payment_to) / 2
+        return (payment_from + payment_to) / 2
     elif payment_from:
-        predicted_salary = payment_from * 1.2
+        return payment_from * 1.2
     elif payment_to:
-        predicted_salary = payment_to * 0.8
-
-    return predicted_salary
+        return payment_to * 0.8
+    else:
+        return 0
 
 
 def print_table(vacancy_descriptions, title):
