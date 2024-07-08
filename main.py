@@ -44,7 +44,8 @@ def fetch_hh_statistics(languages, page_limit=1000):
             if predicted_salary:
                 vacancies_processed += 1
                 total_salary += predicted_salary
-        average_salary = int(total_salary / vacancies_processed)
+
+        average_salary = int(total_salary / vacancies_processed) if vacancies_processed else 0
         salaries = {
             'vacancies_found': vacancies_found,
             'vacancies_processed': vacancies_processed,
@@ -102,7 +103,7 @@ def fetch_sj_statistics(api_key, languages, page_limit=1000):
             if predicted_salary:
                 vacancies_processed += 1
                 total_salary += predicted_salary
-        average_salary = int(total_salary / vacancies_processed)
+        average_salary = int(total_salary / vacancies_processed) if vacancies_processed else 0
         vacancies_superjob_salaries[language] = {
             'vacancies_found': vacancies_found,
             'vacancies_processed': vacancies_processed,
